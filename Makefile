@@ -1,5 +1,5 @@
 # Takes the name of the current directory as a the executable and "pr" name
-TARGET  := stnc
+TARGET  := stnd
 # Compiler
 CC      := gcc
 # Warning levels

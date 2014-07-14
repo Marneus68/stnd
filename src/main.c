@@ -26,31 +26,35 @@ char * executeCommand(char* command, char *buff) {
 	return buff;
 }
 
-void processChild (int sock) {
+void processChild (int sockfd) {
 	FILE *fp;
 	int status;
-	char path[1035];
+	char path[5000];
 
 	int n;
-	char read_buffer[5000];
+	char buf[5000];
 	char buffer[5000];
 	char buffer2[5000];
 
-	bzero(buffer,5000);
-	bzero(buffer2,5000);
-	bzero(read_buffer,5000);
+	char exitTest[5000] = "exit";
+	
+	getcwd(path, sizeof(path));
+	strcat(path, "$ ");
+	write(sockfd, path,5000);
 
-	n = read(sock,read_buffer,5000);
-	if (n < 0){ 
-   		error("Error : reading from socket");
-	}
-  	strncpy ( buffer, read_buffer, strlen(read_buffer)-2 );
-	executeCommand(buffer,buffer2);
-
-	n = write(sock,buffer2,5000);
-
-	if (n < 0){
-   		error("Error : writing to socket");
+	while ((n = read(sockfd,buf,5000))>0) 
+	{
+		getcwd(path, sizeof(path));
+		bzero(buffer,5000);
+		bzero(buffer2,5000);
+		strncpy ( buffer, buf, strlen(buf)-2 );
+		if (strcmp(buffer, exitTest) == 0) 
+			break;
+		executeCommand(buffer,buffer2);
+		//buf[n] = '\0';
+		strcat(path, "$ ");
+		strcat(path, buffer2);
+		n = write(sockfd, path,5000);
 	}
 }
 

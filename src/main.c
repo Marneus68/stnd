@@ -29,32 +29,34 @@ char * executeCommand(char* command, char *buff) {
 void processChild (int sockfd) {
 	FILE *fp;
 	int status;
-	char path[5000];
+	char path[1024];
 
 	int n;
-	char buf[5000];
-	char buffer[5000];
-	char buffer2[5000];
+	char buf[1024];
+	char buffer[1024];
+	char buffer2[1024];
 
-	char exitTest[5000] = "exit";
+	char exitTest[1024] = "exit";
 	
 	getcwd(path, sizeof(path));
 	strcat(path, "$ ");
-	write(sockfd, path,5000);
+	write(sockfd, path,1024);
 
-	while ((n = read(sockfd,buf,5000))>0) 
+	while ((n = read(sockfd,buf,1024))>0) 
 	{
 		getcwd(path, sizeof(path));
-		bzero(buffer,5000);
-		bzero(buffer2,5000);
-		strncpy ( buffer, buf, strlen(buf)-2 );
+		strncpy (buffer, buf, strlen(buf)-2);
 		if (strcmp(buffer, exitTest) == 0) 
 			break;
 		executeCommand(buffer,buffer2);
-		//buf[n] = '\0';
 		strcat(path, "$ ");
 		strcat(path, buffer2);
-		n = write(sockfd, path,5000);
+		n = write(sockfd, path,1024);
+
+		bzero(path, 1024);
+		bzero(buf, 1024);
+		bzero(buffer,1024);
+		bzero(buffer2,1024);
 	}
 }
 
@@ -87,7 +89,7 @@ int main(int argc, const char *argv[])
 
 	if (bind(lfd, (struct sockaddr *) & servaddr, sizeof(servaddr)) < 0) 
 	{
-		error("Error : binding port number\n");
+		printf("Error : binding port number\n");
 	}
 
 	listen(lfd, 5);
